@@ -9,19 +9,6 @@
     "lint": "eslint .",
     "preview": "vite preview"
   },
-  "dependencies": {
-    "@react-aria/utils": "^3.34.1",
-    "@tailwindcss/vite": "^4.3.1",
-    "@tanstack/react-query": "^5.101.0",
-    "axios": "^1.18.0",
-    "react": "^19.2.6",
-    "react-aria": "^3.49.0",
-    "react-dom": "^19.2.6",
-    "react-hook-form": "^7.79.0",
-    "react-router-dom": "^7.18.0",
-    "react-stately": "^3.47.0",
-    "tailwindcss": "^4.3.1"
-  },
   "devDependencies": {
     "@eslint/js": "^10.0.1",
     "@types/node": "^24.12.3",
@@ -37,5 +24,19 @@
     "typescript": "~6.0.2",
     "typescript-eslint": "^8.59.2",
     "vite": "^8.0.12"
+  },
+  "dependencies": {
+    "@react-aria/utils": "^3.34.1",
+    "@tailwindcss/vite": "^4.3.1",
+    "@tanstack/react-query": "^5.101.0",
+    "axios": "^1.18.0",
+    "react": "^19.2.6",
+    "react-aria": "^3.49.0",
+    "react-dom": "^19.2.6",
+    "react-hook-form": "^7.79.0",
+    "react-router-dom": "^7.18.0",
+    "react-stately": "^3.47.0",
+    "tailwindcss": "^4.3.1",
+    "react-aria-components": "^1.19.0"
   }
 }

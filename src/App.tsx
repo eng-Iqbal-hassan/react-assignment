@@ -1,10 +1,25 @@
-function App() {
-  return (
-    <div className="text-red-500">
-      <h1> here it is </h1>
-      This ia an app component.
-    </div>
-  );
-}
+import { createBrowserRouter, RouterProvider } from "react-router-dom";
+import { SignUp } from "./routes/auth/signUp";
+import { LogIn } from "./routes/auth/logIn";
+import { AuthLayout } from "./routes/auth/layout";
 
-export default App;
+const router = createBrowserRouter([
+  {
+    element: <AuthLayout />,
+    children: [
+      {
+        path: "/",
+        element: <SignUp />,
+      },
+      {
+        path: "/login",
+        element: <LogIn />,
+      },
+    ],
+  },
+  
+]);
+
+export default function App() {
+  return <RouterProvider router={router} />;
+}

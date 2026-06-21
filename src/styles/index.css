@@ -1,1 +1,27 @@
+@import "./input.css";
 @import "tailwindcss";
+
+@theme {
+
+  --color-primary: #0B4B36;
+
+  --color-gray-50: #f7f7f7;
+  --color-gray-400: #B5B5B5;
+
+  --font-fira: "Fira Sans", sans-serif;
+  --font-montserrat: "Montserrat", sans-serif;
+
+  --shadow-card: 0px 3px 6px 0px #00000029;
+}
+
+html, body, #root {
+  height: 100%;
+}
+
+.custom-clip {
+  clip-path: polygon(
+    0% 0%,
+    100% 0%,
+    50% 100%
+  );
+}
