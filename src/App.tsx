@@ -1,13 +1,18 @@
+import { createBrowserRouter, RouterProvider } from "react-router-dom";
+import { SignUp } from "./routes/auth/signUp";
 import { LogIn } from "./routes/auth/logIn";
 
-function App() {
-  return (
-    <div className="text-red-500">
-      <h1> here it is </h1>
-      This ia an app component.
-      <LogIn />
-    </div>
-  );
-}
+const router = createBrowserRouter([
+  {
+    path: "/",
+    element: <SignUp />,
+  },
+  {
+    path: "/login",
+    element: <LogIn />,
+  },
+]);
 
-export default App;
+export default function App() {
+  return <RouterProvider router={router} />;
+}
