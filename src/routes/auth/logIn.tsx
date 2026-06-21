@@ -1,10 +1,15 @@
-import { Form, TextField } from 'react-aria-components';
-export function logIn() {
+import { Form, TextField, Label, Input } from 'react-aria-components';
+export function LogIn() {
   return (
     <div>
       <Form>
-        <TextField
+        <TextField name="email" isRequired>
+        <Label>Email</Label>
+        <Input
+          type="email"
+          placeholder="Enter your email"
         />
+      </TextField>
       </Form>
     </div>
   );
