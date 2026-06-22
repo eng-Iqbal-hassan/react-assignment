@@ -2,26 +2,54 @@
 @import "tailwindcss";
 
 @theme {
+    --color-green-700: #146548;
+    --color-green-800: #0B4B36;
+    --color-green-900: #062E21;
 
-  --color-primary: #0B4B36;
+    --color-gray-50: #f7f7f7;
+    --color-gray-100: #f2f2f2;
+    --color-gray-200: #e8e8e8;
+    --color-gray-300: #d6d6d6;
+    --color-gray-400: #B5B5B5;
+    --color-gray-500: #8f8f8f;
+    --color-gray-700: #4f4f4f;
 
-  --color-gray-50: #f7f7f7;
-  --color-gray-400: #B5B5B5;
+    --color-white: hsla(0, 0%, 100%, 1);
 
-  --font-fira: "Fira Sans", sans-serif;
-  --font-montserrat: "Montserrat", sans-serif;
+    --font-fira: "Fira Sans", sans-serif;
+    --font-montserrat: "Montserrat", sans-serif;
 
-  --shadow-card: 0px 3px 6px 0px #00000029;
+    --shadow-card: 0px 3px 6px 0px #00000029;
+
+    --solid: var(--color-green-800);
+    --solid-hover: var(--color-green-700);
+    --solid-active: var(--color-green-900);
+
+    --plain-text: var(--color-green-800);
+    --plain-text-hover: var(--color-green-700);
+
+    --plain: transparent;
+
 }
 
 html, body, #root {
-  height: 100%;
+    height: 100%;
 }
 
 .custom-clip {
-  clip-path: polygon(
-    0% 0%,
-    100% 0%,
-    50% 100%
-  );
+    clip-path: polygon(
+            0% 0%,
+            100% 0%,
+            50% 100%
+    );
+}
+
+.custom-header-clip {
+    clip-path: polygon(
+            0% 0%,
+            100% 0%,
+            100% 75%,
+            50% 100%,
+            0% 75%
+    );
 }
