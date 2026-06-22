@@ -11,7 +11,9 @@
     --color-gray-200: #e8e8e8;
     --color-gray-300: #d6d6d6;
     --color-gray-400: #B5B5B5;
+    --color-gray-450: #939393;
     --color-gray-500: #8f8f8f;
+    --color-gray-600: #4d4d4d;
     --color-gray-700: #4f4f4f;
 
     --color-white: hsla(0, 0%, 100%, 1);
@@ -20,6 +22,7 @@
     --font-montserrat: "Montserrat", sans-serif;
 
     --shadow-card: 0px 3px 6px 0px #00000029;
+    --shadow-soft: 0px 1px 3px 0px hsla(0, 0%, 0%, 0.14);
 
     --solid: var(--color-green-800);
     --solid-hover: var(--color-green-700);
