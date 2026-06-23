@@ -3,6 +3,9 @@ import { Button } from '../../components/primitives/Button';
 import { IconButton } from '../../components/primitives/Button';
 import { DeleteIcon, EditIcon } from '../../assets/svg';
 import { dummyTodos } from './dummyData.tsx';
+import { DialogTrigger } from 'react-aria-components';
+
+import { TodoModal } from './TodoModal.tsx';
 
 export function Dashboard() {
   return (
@@ -14,9 +17,14 @@ export function Dashboard() {
           <h2 className="text-3xl font-extrabold leading-7 text-green-800 ">
             Welcome to your to-do list!
           </h2>
-          <Button type="button" variant="solid" size="small">
-            CREATE NEW TASK
-          </Button>
+
+          <DialogTrigger>
+            <Button type="button" variant="solid" size="small">
+              CREATE NEW TASK
+            </Button>
+
+            <TodoModal />
+          </DialogTrigger>
         </div>
         <div className="flex flex-col gap-8 mt-10">
           {dummyTodos.map((todo, index) => (
