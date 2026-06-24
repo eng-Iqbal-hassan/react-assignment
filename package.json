@@ -27,6 +27,7 @@
   },
   "dependencies": {
     "@react-aria/utils": "^3.34.1",
+    "@supabase/supabase-js": "^2.108.2",
     "@tailwindcss/vite": "^4.3.1",
     "@tanstack/react-query": "^5.101.0",
     "axios": "^1.18.0",
