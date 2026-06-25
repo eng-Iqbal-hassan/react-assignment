@@ -1,115 +1,177 @@
-import {
-  Modal,
-  Dialog,
-  Label,
-  Input,
-  TextField,
-  RadioGroup,
-  Radio,
-  Form,
-} from 'react-aria-components';
+import { Modal, Dialog } from 'react-aria-components';
 
 import { CrossIcon } from '../../assets/svg';
 import { Button, IconButton } from '../../components/primitives/Button';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+
+import { useCreateTodo } from '../../hooks/useCreateTodo';
+import { useUpdateTodo } from '../../hooks/useUpdateTodo';
+
+import type { Todo } from '../../types/todos';
 
 type Priority = 'High' | 'Medium' | 'Low';
 
-export function TodoModal() {
-  const [priority, setPriority] = useState<Priority>('High');
+type TodoModalProps = {
+  userId: string;
+  editingTodo?: Todo | null;
+  isOpen: boolean; // ✅ ADD THIS
+  onClose: () => void; // ✅ PROPER CLOSE HANDLER
+};
 
+export function TodoModal({
+  userId,
+  editingTodo,
+  isOpen,
+  onClose,
+}: TodoModalProps) {
+  const isEditMode = Boolean(editingTodo);
+
+  const { mutate: createTodo, isPending } = useCreateTodo();
+  const { mutate: updateTodo, isPending: isUpdating } = useUpdateTodo();
+
+  const [priority, setPriority] = useState<Priority>('High');
   const [labelsValue, setLabelsValue] = useState('');
   const [labels, setLabels] = useState<string[]>([]);
+  const [title, setTitle] = useState('');
+  const [isCompleted, setIsCompleted] = useState(false);
+
+  /* hydrate form */
+  useEffect(() => {
+    if (editingTodo) {
+      setTitle(editingTodo.title ?? '');
+      setPriority((editingTodo.priority as Priority) ?? 'High');
+      setLabels(editingTodo.labels ?? []);
+      setIsCompleted(editingTodo.is_completed ?? false);
+    } else {
+      setTitle('');
+      setPriority('High');
+      setLabels([]);
+      setLabelsValue('');
+      setIsCompleted(false);
+    }
+  }, [editingTodo]);
 
   const addLabel = () => {
     const trimmed = labelsValue.trim();
     if (!trimmed) return;
 
-    if (labels.includes(trimmed)) {
-      setLabelsValue('');
-      return;
+    if (!labels.includes(trimmed)) {
+      setLabels((prev) => [...prev, trimmed]);
     }
 
-    setLabels([...labels, trimmed]);
     setLabelsValue('');
   };
 
   const removeLabel = (label: string) => {
-    setLabels(labels.filter((l) => l !== label));
+    setLabels((prev) => prev.filter((l) => l !== label));
   };
 
-  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === 'Enter') {
-      e.preventDefault();
-      addLabel();
+  const handleSubmit = () => {
+    if (!userId || !title.trim()) return;
+
+    const payload = {
+      title,
+      priority,
+      labels,
+      userId,
+      is_completed: isCompleted,
+    };
+
+    if (isEditMode && editingTodo) {
+      updateTodo(
+        {
+          id: editingTodo.id,
+          ...payload,
+        },
+        {
+          onSuccess: () => {
+            onClose(); // ✅ CLOSE MODAL
+          },
+        }
+      );
+
+      return;
     }
+
+    createTodo(payload, {
+      onSuccess: () => {
+        onClose(); // ✅ CLOSE MODAL
+      },
+    });
   };
+
+  const loading = isPending || isUpdating;
 
   return (
-    <Modal className="fixed inset-0 flex items-center justify-center bg-black/50">
-      <Dialog className="w-full max-w-md rounded-lg bg-white p-12 shadow-lg outline-none relative">
-        <Form className="flex flex-col gap-8">
-          {/* Title */}
-          <TextField name="name" isRequired>
-            <Label>Task title</Label>
-            <Input type="text" placeholder="Cook food" />
-          </TextField>
+    <Modal
+      isOpen={isOpen}
+      onOpenChange={(open) => {
+        if (!open) onClose();
+      }}
+      className="fixed inset-0 flex items-center justify-center bg-black/50"
+    >
+      <Dialog className="w-full max-w-md rounded-lg bg-white p-12 shadow-lg relative outline-none">
+        <div className="flex flex-col gap-8">
+          {/* TITLE */}
+          <div className="flex flex-col gap-2">
+            <label className="text-sm font-medium text-green-800">
+              Task title
+            </label>
 
-          {/* Priority */}
-          <RadioGroup
-            value={priority}
-            onChange={(value) => setPriority(value as Priority)}
-          >
-            <Label className="block text-base font-bold text-green-800 mb-3">
+            <input
+              type="text"
+              className="border p-2 rounded-md"
+              value={title}
+              onChange={(e) => setTitle(e.target.value)}
+            />
+          </div>
+
+          {/* PRIORITY */}
+          <div className="flex flex-col gap-2">
+            <label className="text-sm font-medium text-green-800">
               Priority
-            </Label>
+            </label>
 
-            <Radio value="High">High</Radio>
-            <Radio value="Medium">Medium</Radio>
-            <Radio value="Low">Low</Radio>
-          </RadioGroup>
+            <select
+              className="border p-2 rounded-md"
+              value={priority}
+              onChange={(e) => setPriority(e.target.value as Priority)}
+            >
+              <option value="Low">Low</option>
+              <option value="Medium">Medium</option>
+              <option value="High">High</option>
+            </select>
+          </div>
 
-          {/* Labels */}
+          {/* LABELS */}
           <div className="flex flex-col gap-3">
-            <TextField className="flex items-center gap-2">
-              <div className="flex flex-col gap-1 w-full">
-                <Label className="text-sm font-medium text-green-800 font-fira">
-                  Labels
-                </Label>
+            <label className="text-sm font-medium text-green-800">Labels</label>
 
-                <Input
-                  value={labelsValue}
-                  onChange={(e) => setLabelsValue(e.target.value)}
-                  onKeyDown={handleKeyDown}
-                  placeholder="Add a label"
-                />
-              </div>
+            <div className="flex gap-2">
+              <input
+                className="border p-2 rounded-md w-full"
+                value={labelsValue}
+                onChange={(e) => setLabelsValue(e.target.value)}
+                placeholder="Add label"
+              />
 
               <button
                 type="button"
                 onClick={addLabel}
-                className="mt-6 bg-green-800 text-white px-4 py-2 rounded-md text-sm"
+                className="px-3 bg-green-600 text-white rounded-md"
               >
                 Add
               </button>
-            </TextField>
+            </div>
 
-            {/* Pills */}
             <div className="flex flex-wrap gap-2">
               {labels.map((label) => (
                 <div
                   key={label}
-                  className="flex items-start gap-1 bg-gray-450 text-white px-2 py-0.5 rounded-full text-xs"
+                  className="flex items-center gap-1 bg-gray-600 text-white px-2 py-1 rounded-full text-xs"
                 >
-                  <span className="text-xs font-normal leading-3.5 font-fira">
-                    {label}
-                  </span>
-
-                  <button
-                    type="button"
-                    onClick={() => removeLabel(label)}
-                    className="text-white leading-2"
-                  >
+                  <span>{label}</span>
+                  <button type="button" onClick={() => removeLabel(label)}>
                     ×
                   </button>
                 </div>
@@ -117,13 +179,39 @@ export function TodoModal() {
             </div>
           </div>
 
-          {/*Submit Button*/}
-          <Button type="button" variant="solid" size="large">
-            CREATE TASK
+          {/* COMPLETED */}
+          <label className="flex items-center gap-2 text-sm">
+            <input
+              type="checkbox"
+              checked={isCompleted}
+              onChange={(e) => setIsCompleted(e.target.checked)}
+            />
+            Mark as completed
+          </label>
+
+          {/* SUBMIT */}
+          <Button
+            type="button"
+            variant="solid"
+            size="large"
+            onClick={handleSubmit}
+            isDisabled={loading}
+          >
+            {isEditMode
+              ? loading
+                ? 'UPDATING...'
+                : 'UPDATE TASK'
+              : loading
+                ? 'CREATING...'
+                : 'CREATE TASK'}
           </Button>
-        </Form>
-        {/* Close */}
-        <IconButton slot="close" className="absolute top-1.5 right-2">
+        </div>
+
+        {/* CLOSE BUTTON */}
+        <IconButton
+          className="absolute top-2 right-2"
+          onClick={onClose} // ✅ FIXED
+        >
           <CrossIcon />
         </IconButton>
       </Dialog>

@@ -1,71 +1,173 @@
 import { Header } from './header.tsx';
-import { Button } from '../../components/primitives/Button';
-import { IconButton } from '../../components/primitives/Button';
+import { Button, IconButton } from '../../components/primitives/Button';
 import { DeleteIcon, EditIcon } from '../../assets/svg';
-import { dummyTodos } from './dummyData.tsx';
 import { DialogTrigger } from 'react-aria-components';
 
 import { TodoModal } from './TodoModal.tsx';
+import { useTodos } from '../../hooks/useTodos';
+import { useDeleteTodo } from '../../hooks/useDeleteTodo';
+import { supabase } from '../../lib/supabase';
+import { useEffect, useState } from 'react';
+import { DeleteTodoModal } from './DeleteTodoModal.tsx';
+
+import type { Todo } from '../../types/todos.ts';
 
 export function Dashboard() {
+  const [userId, setUserId] = useState<string | null>(null);
+  const [loadingUser, setLoadingUser] = useState(true);
+
+  const [isOpen, setIsOpen] = useState(false);
+  const [editingTodo, setEditingTodo] = useState<Todo | null>(null);
+
+  useEffect(() => {
+    const fetchUser = async () => {
+      setLoadingUser(true);
+
+      const { data, error } = await supabase.auth.getUser();
+
+      if (error) {
+        console.error(error);
+        setLoadingUser(false);
+        return;
+      }
+
+      setUserId(data.user?.id ?? null);
+      setLoadingUser(false);
+    };
+
+    void fetchUser();
+  }, []);
+
+  const { data: todos = [], isLoading, error } = useTodos(userId);
+
+  const { mutate: deleteTodo, isPending: isDeleting } = useDeleteTodo();
+
+  if (loadingUser) {
+    return <div className="p-10 text-gray-500">Loading user...</div>;
+  }
+
+  if (!userId) {
+    return <div className="p-10 text-red-500">No user found</div>;
+  }
+
   return (
     <div>
       <Header />
+
       <div className="py-20 px-37.5">
-        {/*Dashboard Header */}
         <div className="flex items-center justify-between">
-          <h2 className="text-3xl font-extrabold leading-7 text-green-800 ">
+          <h2 className="text-3xl font-extrabold text-green-800">
             Welcome to your to-do list!
           </h2>
 
-          <DialogTrigger>
-            <Button type="button" variant="solid" size="small">
+          <DialogTrigger
+            isOpen={isOpen}
+            onOpenChange={(open) => {
+              setIsOpen(open);
+              if (!open) setEditingTodo(null);
+            }}
+          >
+            <Button
+              type="button"
+              variant="solid"
+              size="small"
+              onClick={() => {
+                setEditingTodo(null); // CREATE mode
+                setIsOpen(true);
+              }}
+            >
               CREATE NEW TASK
             </Button>
 
-            <TodoModal />
+            <TodoModal
+              userId={userId}
+              editingTodo={editingTodo}
+              onClose={() => {
+                setIsOpen(false);
+                setEditingTodo(null);
+              }}
+            />
           </DialogTrigger>
         </div>
+
+        {isLoading && <p className="mt-10">Loading todos...</p>}
+        {error && <p className="mt-10 text-red-500">Error loading todos</p>}
+
+        {!isLoading && todos.length === 0 && (
+          <p className="mt-10 text-gray-500">
+            No todos found. Create your first task 🚀
+          </p>
+        )}
+
         <div className="flex flex-col gap-8 mt-10">
-          {dummyTodos.map((todo, index) => (
+          {todos.map((todo: Todo) => (
             <div
-              key={index}
+              key={todo.id}
               className="py-2.5 px-8 bg-white shadow-soft rounded-lg flex justify-between items-center"
             >
-              {/* Table Left Content */}
               <div className="flex items-center gap-5">
-                <h4 className="text-base font-normal font-fira leading-4 text-gray-600">
-                  {todo.title}
-                </h4>
+                <div className="flex items-center gap-2">
+                  {/* STATUS DOT */}
+                  <span
+                    className={`w-2.5 h-2.5 rounded-full ${
+                      todo.is_completed ? 'bg-green-500' : 'bg-red-500'
+                    }`}
+                  />
+
+                  {/* TITLE */}
+                  <h4 className="text-gray-700">{todo.title}</h4>
+
+                  {/* STATUS TEXT */}
+                  <span
+                    className={`text-xs font-medium ${
+                      todo.is_completed ? 'text-green-600' : 'text-red-500'
+                    }`}
+                  >
+                    {todo.is_completed ? 'Completed' : 'Pending'}
+                  </span>
+                </div>
 
                 <div className="flex gap-2">
-                  {todo.labelsArray &&
-                    todo.labelsArray.map((label, i) => (
-                      <div
-                        key={i}
-                        className="bg-gray-450 text-white rounded-sm text-xs font-normal leading-3.5 font-fira px-2 py-0.5"
-                      >
-                        {label}
-                      </div>
-                    ))}
+                  {todo.labels?.map((label, i) => (
+                    <div
+                      key={i}
+                      className="bg-gray-450 text-white text-xs px-2 py-0.5"
+                    >
+                      {label}
+                    </div>
+                  ))}
                 </div>
               </div>
 
-              {/* Table Right Content */}
               <div className="flex items-center gap-3">
-                <h5 className="text-sm font-normal leading-7 font-fira text-gray-600">
-                  {todo.priority}
-                </h5>
+                <h5 className="text-gray-600">{todo.priority}</h5>
 
-                <div className="flex gap-1">
-                  <IconButton>
-                    <EditIcon />
-                  </IconButton>
+                <IconButton
+                  onClick={() => {
+                    setEditingTodo(todo);
+                    setIsOpen(true);
+                  }}
+                >
+                  <EditIcon />
+                </IconButton>
 
+                <DialogTrigger>
                   <IconButton>
                     <DeleteIcon />
                   </IconButton>
-                </div>
+
+                  <DeleteTodoModal
+                    todo={todo}
+                    isDeleting={isDeleting}
+                    onConfirm={() => {
+                      deleteTodo(todo.id, {
+                        onSuccess: () => {
+                          setDeletingTodo(null);
+                        },
+                      });
+                    }}
+                  />
+                </DialogTrigger>
               </div>
             </div>
           ))}
