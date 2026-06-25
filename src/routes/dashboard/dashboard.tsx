@@ -2,8 +2,8 @@ import { Header } from './header.tsx';
 import { Button, IconButton } from '../../components/primitives/Button';
 import { DeleteIcon, EditIcon } from '../../assets/svg';
 import { DialogTrigger } from 'react-aria-components';
-import { TodoModal } from './TodoModal.tsx';
 
+import { TodoModal } from './TodoModal.tsx';
 import { useTodos } from '../../hooks/useTodos';
 import { supabase } from '../../lib/supabase';
 import { useEffect, useState } from 'react';
@@ -13,7 +13,9 @@ import type { Todo } from '../../types/todos.ts';
 export function Dashboard() {
   const [userId, setUserId] = useState<string | null>(null);
   const [loadingUser, setLoadingUser] = useState(true);
+
   const [isOpen, setIsOpen] = useState(false);
+  const [editingTodo, setEditingTodo] = useState<Todo | null>(null);
 
   useEffect(() => {
     const fetchUser = async () => {
@@ -36,9 +38,13 @@ export function Dashboard() {
 
   const { data: todos = [], isLoading, error } = useTodos(userId);
 
-  if (loadingUser)
+  if (loadingUser) {
     return <div className="p-10 text-gray-500">Loading user...</div>;
-  if (!userId) return <div className="p-10 text-red-500">No user found</div>;
+  }
+
+  if (!userId) {
+    return <div className="p-10 text-red-500">No user found</div>;
+  }
 
   return (
     <div>
@@ -50,19 +56,33 @@ export function Dashboard() {
             Welcome to your to-do list!
           </h2>
 
-          {/* ✅ FIXED: NO extra open state */}
-          <DialogTrigger isOpen={isOpen} onOpenChange={setIsOpen}>
+          <DialogTrigger
+            isOpen={isOpen}
+            onOpenChange={(open) => {
+              setIsOpen(open);
+              if (!open) setEditingTodo(null);
+            }}
+          >
             <Button
               type="button"
               variant="solid"
               size="small"
-              onClick={() => setIsOpen(true)}
+              onClick={() => {
+                setEditingTodo(null); // CREATE mode
+                setIsOpen(true);
+              }}
             >
               CREATE NEW TASK
             </Button>
 
-            {/* IMPORTANT: no need to pass onSuccess for closing */}
-            <TodoModal userId={userId} onSuccess={() => setIsOpen(false)} />
+            <TodoModal
+              userId={userId}
+              editingTodo={editingTodo}
+              onClose={() => {
+                setIsOpen(false);
+                setEditingTodo(null);
+              }}
+            />
           </DialogTrigger>
         </div>
 
@@ -99,7 +119,12 @@ export function Dashboard() {
               <div className="flex items-center gap-3">
                 <h5 className="text-gray-600">{todo.priority}</h5>
 
-                <IconButton>
+                <IconButton
+                  onClick={() => {
+                    setEditingTodo(todo);
+                    setIsOpen(true);
+                  }}
+                >
                   <EditIcon />
                 </IconButton>
 
