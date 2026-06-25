@@ -5,8 +5,10 @@ import { DialogTrigger } from 'react-aria-components';
 
 import { TodoModal } from './TodoModal.tsx';
 import { useTodos } from '../../hooks/useTodos';
+import { useDeleteTodo } from '../../hooks/useDeleteTodo';
 import { supabase } from '../../lib/supabase';
 import { useEffect, useState } from 'react';
+import { DeleteTodoModal } from './DeleteTodoModal.tsx';
 
 import type { Todo } from '../../types/todos.ts';
 
@@ -37,6 +39,8 @@ export function Dashboard() {
   }, []);
 
   const { data: todos = [], isLoading, error } = useTodos(userId);
+
+  const { mutate: deleteTodo, isPending: isDeleting } = useDeleteTodo();
 
   if (loadingUser) {
     return <div className="p-10 text-gray-500">Loading user...</div>;
@@ -128,9 +132,23 @@ export function Dashboard() {
                   <EditIcon />
                 </IconButton>
 
-                <IconButton>
-                  <DeleteIcon />
-                </IconButton>
+                <DialogTrigger>
+                  <IconButton>
+                    <DeleteIcon />
+                  </IconButton>
+
+                  <DeleteTodoModal
+                    todo={todo}
+                    isDeleting={isDeleting}
+                    onConfirm={() => {
+                      deleteTodo(todo.id, {
+                        onSuccess: () => {
+                          setDeletingTodo(null);
+                        },
+                      });
+                    }}
+                  />
+                </DialogTrigger>
               </div>
             </div>
           ))}

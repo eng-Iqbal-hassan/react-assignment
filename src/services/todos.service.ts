@@ -64,3 +64,15 @@ export async function updateTodo(input: {
 
   return data;
 }
+
+/* DELETE TODO */
+export async function deleteTodo(id: string): Promise<{ id: string }> {
+  const { error } = await supabase.from('todos').delete().eq('id', id);
+
+  if (error) {
+    console.error('deleteTodo error:', error);
+    throw error;
+  }
+
+  return { id };
+}
