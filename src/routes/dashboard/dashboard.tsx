@@ -106,7 +106,26 @@ export function Dashboard() {
               className="py-2.5 px-8 bg-white shadow-soft rounded-lg flex justify-between items-center"
             >
               <div className="flex items-center gap-5">
-                <h4 className="text-gray-700">{todo.title}</h4>
+                <div className="flex items-center gap-2">
+                  {/* STATUS DOT */}
+                  <span
+                    className={`w-2.5 h-2.5 rounded-full ${
+                      todo.is_completed ? 'bg-green-500' : 'bg-red-500'
+                    }`}
+                  />
+
+                  {/* TITLE */}
+                  <h4 className="text-gray-700">{todo.title}</h4>
+
+                  {/* STATUS TEXT */}
+                  <span
+                    className={`text-xs font-medium ${
+                      todo.is_completed ? 'text-green-600' : 'text-red-500'
+                    }`}
+                  >
+                    {todo.is_completed ? 'Completed' : 'Pending'}
+                  </span>
+                </div>
 
                 <div className="flex gap-2">
                   {todo.labels?.map((label, i) => (
