@@ -22,6 +22,7 @@ export function LogIn() {
     handleSubmit,
     formState: { errors },
   } = useForm<LoginForm>({
+    mode: 'onTouched',
     defaultValues: {
       email: '',
       password: '',
@@ -88,7 +89,7 @@ export function LogIn() {
         )}
 
         {/* Email */}
-        <TextField name="email" isRequired>
+        <TextField name="email">
           <Label>Email</Label>
 
           <Input
@@ -109,7 +110,7 @@ export function LogIn() {
         </TextField>
 
         {/* Password */}
-        <TextField name="password" isRequired>
+        <TextField name="password">
           <Label>Password</Label>
 
           <Input

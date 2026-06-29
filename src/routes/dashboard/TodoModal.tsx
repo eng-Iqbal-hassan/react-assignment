@@ -119,20 +119,28 @@ export function TodoModal({
     };
 
     if (isEditMode && editingTodo) {
-      updateTodo({ id: editingTodo.id, ...payload }, { onSuccess: onClose });
+      updateTodo(
+        { id: editingTodo.id, ...payload },
+        { onSuccess: handleClose }
+      );
       return;
     }
 
-    createTodo(payload, { onSuccess: onClose });
+    createTodo(payload, { onSuccess: handleClose });
   };
 
   const loading = isPending || isUpdating;
+
+  const handleClose = () => {
+    reset();
+    onClose();
+  };
 
   return (
     <Modal
       isOpen={isOpen}
       onOpenChange={(open) => {
-        if (!open) onClose();
+        if (!open) handleClose();
       }}
       className="fixed inset-0 flex items-center justify-center bg-black/50"
     >
@@ -259,7 +267,7 @@ export function TodoModal({
         </div>
 
         {/* CLOSE BUTTON */}
-        <IconButton className="absolute top-2 right-2" onClick={onClose}>
+        <IconButton className="absolute top-2 right-2" onClick={handleClose}>
           <CrossIcon />
         </IconButton>
       </Dialog>
