@@ -10,7 +10,8 @@ import {
 
 import { CrossIcon } from '../../assets/svg';
 import { Button, IconButton } from '../../components/primitives/Button';
-import { useState, useEffect } from 'react';
+import { useEffect } from 'react';
+import { useForm, Controller, useWatch } from 'react-hook-form';
 
 import { useCreateTodo } from '../../hooks/useCreateTodo';
 import { useUpdateTodo } from '../../hooks/useUpdateTodo';
@@ -23,8 +24,16 @@ type Priority = 'High' | 'Medium' | 'Low';
 type TodoModalProps = {
   userId: string;
   editingTodo?: Todo | null;
-  isOpen: boolean; // ✅ ADD THIS
-  onClose: () => void; // ✅ PROPER CLOSE HANDLER
+  isOpen: boolean;
+  onClose: () => void;
+};
+
+type FormValues = {
+  title: string;
+  priority: Priority;
+  labelsValue: string;
+  labels: string[];
+  isCompleted: boolean;
 };
 
 export function TodoModal({
@@ -38,75 +47,83 @@ export function TodoModal({
   const { mutate: createTodo, isPending } = useCreateTodo();
   const { mutate: updateTodo, isPending: isUpdating } = useUpdateTodo();
 
-  const [priority, setPriority] = useState<Priority>('High');
-  const [labelsValue, setLabelsValue] = useState('');
-  const [labels, setLabels] = useState<string[]>([]);
-  const [title, setTitle] = useState('');
-  const [isCompleted, setIsCompleted] = useState(false);
+  const {
+    control,
+    handleSubmit,
+    reset,
+    setValue,
+    getValues,
+    formState: { errors },
+  } = useForm<FormValues>({
+    defaultValues: {
+      title: '',
+      priority: 'High',
+      labelsValue: '',
+      labels: [],
+      isCompleted: false,
+    },
+  });
+
+  // Keep labels accessible for rendering
+  const labels = useWatch({ control, name: 'labels' });
 
   /* hydrate form */
   useEffect(() => {
     if (editingTodo) {
-      setTitle(editingTodo.title ?? '');
-      setPriority((editingTodo.priority as Priority) ?? 'High');
-      setLabels(editingTodo.labels ?? []);
-      setIsCompleted(editingTodo.is_completed ?? false);
+      reset({
+        title: editingTodo.title ?? '',
+        priority: (editingTodo.priority as Priority) ?? 'High',
+        labels: editingTodo.labels ?? [],
+        labelsValue: '',
+        isCompleted: editingTodo.is_completed ?? false,
+      });
     } else {
-      setTitle('');
-      setPriority('High');
-      setLabels([]);
-      setLabelsValue('');
-      setIsCompleted(false);
+      reset({
+        title: '',
+        priority: 'High',
+        labels: [],
+        labelsValue: '',
+        isCompleted: false,
+      });
     }
-  }, [editingTodo]);
+  }, [editingTodo, reset]);
 
   const addLabel = () => {
-    const trimmed = labelsValue.trim();
+    const trimmed = getValues('labelsValue').trim();
     if (!trimmed) return;
 
-    if (!labels.includes(trimmed)) {
-      setLabels((prev) => [...prev, trimmed]);
+    const current = getValues('labels');
+    if (!current.includes(trimmed)) {
+      setValue('labels', [...current, trimmed]);
     }
 
-    setLabelsValue('');
+    setValue('labelsValue', '');
   };
 
   const removeLabel = (label: string) => {
-    setLabels((prev) => prev.filter((l) => l !== label));
+    setValue(
+      'labels',
+      getValues('labels').filter((l) => l !== label)
+    );
   };
 
-  const handleSubmit = () => {
-    if (!userId || !title.trim()) return;
+  const onSubmit = (data: FormValues) => {
+    if (!userId || !data.title.trim()) return;
 
     const payload = {
-      title,
-      priority,
-      labels,
+      title: data.title,
+      priority: data.priority,
+      labels: data.labels,
       userId,
-      is_completed: isCompleted,
+      is_completed: data.isCompleted,
     };
 
     if (isEditMode && editingTodo) {
-      updateTodo(
-        {
-          id: editingTodo.id,
-          ...payload,
-        },
-        {
-          onSuccess: () => {
-            onClose(); // ✅ CLOSE MODAL
-          },
-        }
-      );
-
+      updateTodo({ id: editingTodo.id, ...payload }, { onSuccess: onClose });
       return;
     }
 
-    createTodo(payload, {
-      onSuccess: () => {
-        onClose(); // ✅ CLOSE MODAL
-      },
-    });
+    createTodo(payload, { onSuccess: onClose });
   };
 
   const loading = isPending || isUpdating;
@@ -122,40 +139,66 @@ export function TodoModal({
       <Dialog className="w-full max-w-md rounded-lg bg-white p-12 shadow-lg relative outline-none">
         <div className="flex flex-col gap-8">
           {/* TITLE */}
-          <div className="flex flex-col gap-2">
+          <TextField className="flex flex-col gap-2">
             <Label>Task title</Label>
-            <RACInput
-              type="text"
-              value={title}
-              onChange={(e) => setTitle(e.target.value)}
+            <Controller
+              control={control}
+              name="title"
+              rules={{
+                required: 'Task title should not be empty',
+                validate: (value) =>
+                  value.trim() !== '' || 'Task title should not be empty',
+              }}
+              render={({ field }) => (
+                <RACInput
+                  type="text"
+                  value={field.value}
+                  onChange={field.onChange}
+                />
+              )}
             />
-          </div>
+            {errors.title && (
+              <span className="text-red-500 text-sm">
+                {errors.title.message}
+              </span>
+            )}
+          </TextField>
 
-          <RadioGroup
-            value={priority}
-            // onChange={(e) => setPriority(e.target.value as Priority)}
-            onChange={(value) => setPriority(value as Priority)}
-          >
-            <Label className="block text-base font-bold text-green-800 mb-3">
-              Priority
-            </Label>
-
-            <Radio value="High">High</Radio>
-            <Radio value="Medium">Medium</Radio>
-            <Radio value="Low">Low</Radio>
-          </RadioGroup>
+          {/* PRIORITY */}
+          <Controller
+            control={control}
+            name="priority"
+            render={({ field }) => (
+              <RadioGroup
+                value={field.value}
+                onChange={(value) => field.onChange(value as Priority)}
+              >
+                <Label className="block text-base font-bold text-green-800 mb-3">
+                  Priority
+                </Label>
+                <Radio value="High">High</Radio>
+                <Radio value="Medium">Medium</Radio>
+                <Radio value="Low">Low</Radio>
+              </RadioGroup>
+            )}
+          />
 
           {/* LABELS */}
           <div className="flex flex-col gap-3">
             <TextField className="flex flex-col gap-3">
               <Label>Labels</Label>
               <div className="flex gap-4">
-                <RACInput
-                  value={labelsValue}
-                  onChange={(e) => setLabelsValue(e.target.value)}
-                  placeholder="Add label"
+                <Controller
+                  control={control}
+                  name="labelsValue"
+                  render={({ field }) => (
+                    <RACInput
+                      value={field.value}
+                      onChange={field.onChange}
+                      placeholder="Add label"
+                    />
+                  )}
                 />
-
                 <Button type="button" onClick={addLabel} size="small">
                   Add
                 </Button>
@@ -182,20 +225,27 @@ export function TodoModal({
             )}
           </div>
 
-          <CustomCheckbox
-            isSelected={isCompleted}
-            onChange={setIsCompleted}
-            className="text-base leading-5 font-normal text-gray-700"
-          >
-            Mark as completed
-          </CustomCheckbox>
+          {/* COMPLETED */}
+          <Controller
+            control={control}
+            name="isCompleted"
+            render={({ field }) => (
+              <CustomCheckbox
+                isSelected={field.value}
+                onChange={field.onChange}
+                className="text-base leading-5 font-normal text-gray-700"
+              >
+                Mark as completed
+              </CustomCheckbox>
+            )}
+          />
 
           {/* SUBMIT */}
           <Button
             type="button"
             variant="solid"
             size="large"
-            onClick={handleSubmit}
+            onClick={handleSubmit(onSubmit)}
             isDisabled={loading}
           >
             {isEditMode
@@ -209,10 +259,7 @@ export function TodoModal({
         </div>
 
         {/* CLOSE BUTTON */}
-        <IconButton
-          className="absolute top-2 right-2"
-          onClick={onClose} // ✅ FIXED
-        >
+        <IconButton className="absolute top-2 right-2" onClick={onClose}>
           <CrossIcon />
         </IconButton>
       </Dialog>

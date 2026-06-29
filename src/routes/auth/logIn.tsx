@@ -1,18 +1,33 @@
-import { useState, useEffect } from 'react';
+import { useEffect, useState } from 'react';
+import { useForm } from 'react-hook-form';
 import { Form, TextField, Label, Input } from 'react-aria-components';
 import { Button } from '../../components/primitives/Button';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '../../lib/supabase';
 
+type LoginForm = {
+  email: string;
+  password: string;
+};
+
 export function LogIn() {
   const navigate = useNavigate();
 
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
   const [checkingSession, setCheckingSession] = useState(true);
+  const [authError, setAuthError] = useState('');
 
-  // ✅ FIX: block login page if session already exists
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+  } = useForm<LoginForm>({
+    defaultValues: {
+      email: '',
+      password: '',
+    },
+  });
+
   useEffect(() => {
     const checkSession = async () => {
       const { data } = await supabase.auth.getSession();
@@ -28,24 +43,21 @@ export function LogIn() {
     void checkSession();
   }, [navigate]);
 
-  async function signIn() {
+  async function signIn(formData: LoginForm) {
     if (loading) return;
 
-    try {
-      if (!email.trim() || !password.trim()) {
-        alert('Email and password are required');
-        return;
-      }
+    setAuthError('');
 
+    try {
       setLoading(true);
 
       const { data, error } = await supabase.auth.signInWithPassword({
-        email,
-        password,
+        email: formData.email,
+        password: formData.password,
       });
 
       if (error) {
-        alert(error.message);
+        setAuthError('Incorrect email or password.');
         return;
       }
 
@@ -54,44 +66,69 @@ export function LogIn() {
       }
     } catch (error) {
       console.error(error);
-      alert('Something went wrong');
+      setAuthError('Something went wrong. Please try again.');
     } finally {
       setLoading(false);
     }
   }
 
-  // ✅ Prevent UI flicker while checking session
   if (checkingSession) {
-    return null; // or loader if you want
+    return null;
   }
 
   return (
     <>
       <Form
-        className="flex flex-col gap-8 mt-12"
-        onSubmit={(e) => {
-          e.preventDefault();
-          void signIn();
-        }}
+        className="flex flex-col gap-6 mt-12"
+        onSubmit={handleSubmit(signIn)}
       >
+        {/* Server Error */}
+        {authError && (
+          <p className="text-sm text-red-600 font-medium">{authError}</p>
+        )}
+
+        {/* Email */}
         <TextField name="email" isRequired>
           <Label>Email</Label>
+
           <Input
             type="email"
             placeholder="Email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
+            {...register('email', {
+              required: 'Email is required.',
+              pattern: {
+                value: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
+                message: 'Please enter a valid email address.',
+              },
+            })}
           />
+
+          {errors.email && (
+            <p className="mt-1 text-sm text-red-600">{errors.email.message}</p>
+          )}
         </TextField>
 
+        {/* Password */}
         <TextField name="password" isRequired>
           <Label>Password</Label>
+
           <Input
             type="password"
             placeholder="Password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
+            {...register('password', {
+              required: 'Password is required.',
+              minLength: {
+                value: 6,
+                message: 'Password must be at least 6 characters.',
+              },
+            })}
           />
+
+          {errors.password && (
+            <p className="mt-1 text-sm text-red-600">
+              {errors.password.message}
+            </p>
+          )}
         </TextField>
 
         <Button
@@ -110,9 +147,9 @@ export function LogIn() {
 
         <Button
           type="button"
-          onClick={() => navigate('/')}
           variant="plain"
-          className="font-sm text-green-800 p-0 border-0 focus:underline focus-visible:underline hover:underline font-medium"
+          onClick={() => navigate('/')}
+          className="font-sm text-green-800 p-0 border-0 hover:underline focus:underline font-medium"
         >
           Sign Up
         </Button>

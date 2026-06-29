@@ -38,7 +38,9 @@ export function ProfileDropdown({ user }: Props) {
 
   return (
     <MenuTrigger>
-      <Button className="w-10 h-10 rounded-full bg-gray-200">👤</Button>
+      <Button className="w-10 h-10 rounded-full bg-gray-200 hover:cursor-pointer">
+        👤
+      </Button>
 
       <Popover className="min-w-64 bg-white border shadow-lg rounded-xl p-2">
         <div className="px-3 py-3 border-b mb-2">

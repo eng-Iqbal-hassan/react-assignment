@@ -36,7 +36,7 @@ export function DeleteTodoModal({
                 isDisabled={isDeleting}
                 onClick={() => {
                   onConfirm();
-                  close(); // ✅ closes modal automatically
+                  close();
                 }}
               >
                 {isDeleting ? 'Deleting...' : 'Delete'}

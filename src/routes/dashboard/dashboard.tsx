@@ -82,6 +82,7 @@ export function Dashboard() {
             <TodoModal
               userId={userId}
               editingTodo={editingTodo}
+              isOpen={isOpen}
               onClose={() => {
                 setIsOpen(false);
                 setEditingTodo(null);
@@ -154,11 +155,7 @@ export function Dashboard() {
                     todo={todo}
                     isDeleting={isDeleting}
                     onConfirm={() => {
-                      deleteTodo(todo.id, {
-                        onSuccess: () => {
-                          setDeletingTodo(null);
-                        },
-                      });
+                      deleteTodo(todo.id);
                     }}
                   />
                 </DialogTrigger>
