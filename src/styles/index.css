@@ -18,11 +18,14 @@
 
     --color-white: hsla(0, 0%, 100%, 1);
 
+    --text-32: 32px;
+
     --font-fira: "Fira Sans", sans-serif;
     --font-montserrat: "Montserrat", sans-serif;
 
     --shadow-card: 0px 3px 6px 0px #00000029;
     --shadow-soft: 0px 1px 3px 0px hsla(0, 0%, 0%, 0.14);
+    --shadow-solid-button: 0px 2px 4px 0px #00000029;
 
     --solid: var(--color-green-800);
     --solid-hover: var(--color-green-700);
@@ -36,7 +39,7 @@
 }
 
 html, body, #root {
-    height: 100%;
+    @apply font-fira h-full bg-gray-50;
 }
 
 .custom-clip {

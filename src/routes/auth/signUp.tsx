@@ -1,28 +1,42 @@
-import { useState, useEffect } from 'react';
+import { useEffect } from 'react';
 import { Form, TextField, Label, Input } from 'react-aria-components';
 import { useNavigate } from 'react-router-dom';
+import { useForm } from 'react-hook-form';
 import { Button } from '../../components/primitives/Button';
 import { supabase } from '../../lib/supabase';
+
+type SignUpForm = {
+  userName: string;
+  email: string;
+  password: string;
+  confirmPassword: string;
+};
 
 export function SignUp() {
   const navigate = useNavigate();
 
-  const [userName, setUserName] = useState('');
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [confirmPassword, setConfirmPassword] = useState('');
-  const [loading, setLoading] = useState(false);
+  const {
+    register,
+    handleSubmit,
+    watch,
+    formState: { errors, isSubmitting },
+  } = useForm<SignUpForm>({
+    mode: 'onTouched',
+    defaultValues: {
+      userName: '',
+      email: '',
+      password: '',
+      confirmPassword: '',
+    },
+  });
 
   useEffect(() => {
     async function checkSession() {
       const { data, error } = await supabase.auth.getSession();
 
       if (error) {
-        console.error(error);
         return;
       }
-
-      console.log('SESSION ON LOAD:', data.session);
 
       if (data.session) {
         navigate('/dashboard');
@@ -32,28 +46,14 @@ export function SignUp() {
     void checkSession();
   }, [navigate]);
 
-  async function signUp() {
-    if (loading) return;
-
+  async function signUp(formData: SignUpForm) {
     try {
-      if (!userName.trim()) {
-        alert('Username is required');
-        return;
-      }
-
-      if (password !== confirmPassword) {
-        alert('Passwords do not match');
-        return;
-      }
-
-      setLoading(true);
-
       const { data, error } = await supabase.auth.signUp({
-        email,
-        password,
+        email: formData.email,
+        password: formData.password,
         options: {
           data: {
-            username: userName,
+            username: formData.userName,
           },
         },
       });
@@ -63,17 +63,11 @@ export function SignUp() {
         return;
       }
 
-      console.log('SIGNUP RESPONSE:', data);
-      console.log('SESSION AFTER SIGNUP:', data.session);
-
       if (data.session) {
         navigate('/dashboard');
       }
     } catch (error) {
-      console.error(error);
-      alert('Something went wrong');
-    } finally {
-      setLoading(false);
+      alert(error);
     }
   }
 
@@ -81,56 +75,104 @@ export function SignUp() {
     <>
       <Form
         className="mt-12 flex flex-col gap-8"
-        onSubmit={(e) => e.preventDefault()}
+        onSubmit={handleSubmit(signUp)}
       >
-        <TextField name="username" isRequired>
+        {/* USERNAME */}
+        <TextField name="userName">
           <Label>Username</Label>
           <Input
             type="text"
             placeholder="Username"
-            value={userName}
-            onChange={(e) => setUserName(e.target.value)}
+            aria-invalid={!!errors.userName}
+            {...register('userName', {
+              required: 'Username is required.',
+              minLength: {
+                value: 3,
+                message: 'Username must be at least 3 characters.',
+              },
+              maxLength: {
+                value: 20,
+                message: 'Username must be at most 20 characters.',
+              },
+            })}
           />
+          {errors.userName && (
+            <p className="mt-1 text-sm text-red-600">
+              {errors.userName.message}
+            </p>
+          )}
         </TextField>
 
-        <TextField name="email" isRequired>
+        {/* EMAIL */}
+        <TextField name="email">
           <Label>Email</Label>
           <Input
             type="email"
             placeholder="Email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
+            aria-invalid={!!errors.email}
+            {...register('email', {
+              required: 'Email is required.',
+              pattern: {
+                value: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
+                message: 'Please enter a valid email address.',
+              },
+            })}
           />
+          {errors.email && (
+            <p className="mt-1 text-sm text-red-600">{errors.email.message}</p>
+          )}
         </TextField>
 
-        <TextField name="password" isRequired>
+        {/* PASSWORD */}
+        <TextField name="password">
           <Label>Password</Label>
           <Input
             type="password"
             placeholder="Password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
+            aria-invalid={!!errors.password}
+            {...register('password', {
+              required: 'Password is required.',
+              minLength: {
+                value: 6,
+                message: 'Password must be at least 6 characters.',
+              },
+            })}
           />
+          {errors.password && (
+            <p className="mt-1 text-sm text-red-600">
+              {errors.password.message}
+            </p>
+          )}
         </TextField>
 
-        <TextField name="confirmPassword" isRequired>
+        {/* CONFIRM PASSWORD */}
+        <TextField name="confirmPassword">
           <Label>Confirm Password</Label>
           <Input
             type="password"
             placeholder="Confirm Password"
-            value={confirmPassword}
-            onChange={(e) => setConfirmPassword(e.target.value)}
+            aria-invalid={!!errors.confirmPassword}
+            {...register('confirmPassword', {
+              required: 'Please confirm your password.',
+              validate: (value) =>
+                value === watch('password') || 'Passwords do not match.',
+            })}
           />
+          {errors.confirmPassword && (
+            <p className="mt-1 text-sm text-red-600">
+              {errors.confirmPassword.message}
+            </p>
+          )}
         </TextField>
 
         <Button
-          type="button"
+          type="submit"
           variant="solid"
           size="large"
-          onClick={signUp}
-          isDisabled={loading}
+          isDisabled={isSubmitting}
+          className="mt-2"
         >
-          {loading ? 'SIGNING UP...' : 'SIGN UP'}
+          {isSubmitting ? 'SIGNING UP...' : 'SIGN UP'}
         </Button>
       </Form>
 
@@ -139,6 +181,7 @@ export function SignUp() {
 
         <Button
           type="button"
+          variant="plain"
           onClick={() => navigate('/login')}
           className="text-green-800 bg-transparent p-0 border-0 hover:underline font-medium"
         >

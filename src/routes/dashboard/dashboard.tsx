@@ -26,7 +26,6 @@ export function Dashboard() {
       const { data, error } = await supabase.auth.getUser();
 
       if (error) {
-        console.error(error);
         setLoadingUser(false);
         return;
       }
@@ -56,7 +55,7 @@ export function Dashboard() {
 
       <div className="py-20 px-37.5">
         <div className="flex items-center justify-between">
-          <h2 className="text-3xl font-extrabold text-green-800">
+          <h2 className="text-32 leading-7 font-montserrat font-extrabold text-green-800">
             Welcome to your to-do list!
           </h2>
 
@@ -82,6 +81,7 @@ export function Dashboard() {
             <TodoModal
               userId={userId}
               editingTodo={editingTodo}
+              isOpen={isOpen}
               onClose={() => {
                 setIsOpen(false);
                 setEditingTodo(null);
@@ -94,7 +94,7 @@ export function Dashboard() {
         {error && <p className="mt-10 text-red-500">Error loading todos</p>}
 
         {!isLoading && todos.length === 0 && (
-          <p className="mt-10 text-gray-500">
+          <p className="mt-10 text-green-800">
             No todos found. Create your first task 🚀
           </p>
         )}
@@ -115,23 +115,14 @@ export function Dashboard() {
                   />
 
                   {/* TITLE */}
-                  <h4 className="text-gray-700">{todo.title}</h4>
-
-                  {/* STATUS TEXT */}
-                  <span
-                    className={`text-xs font-medium ${
-                      todo.is_completed ? 'text-green-600' : 'text-red-500'
-                    }`}
-                  >
-                    {todo.is_completed ? 'Completed' : 'Pending'}
-                  </span>
+                  <h4 className="text-gray-700 leading-5">{todo.title}</h4>
                 </div>
 
                 <div className="flex gap-2">
                   {todo.labels?.map((label, i) => (
                     <div
                       key={i}
-                      className="bg-gray-450 text-white text-xs px-2 py-0.5"
+                      className="bg-gray-450 text-white text-xs leading-3.5 font-normal px-2 py-0.5 rounded-sm"
                     >
                       {label}
                     </div>
@@ -139,10 +130,13 @@ export function Dashboard() {
                 </div>
               </div>
 
-              <div className="flex items-center gap-3">
-                <h5 className="text-gray-600">{todo.priority}</h5>
+              <div className="flex items-center">
+                <h5 className="text-sm font-normal leading-7 text-gray-600">
+                  {todo.priority}
+                </h5>
 
                 <IconButton
+                  className="border-0 ml-3"
                   onClick={() => {
                     setEditingTodo(todo);
                     setIsOpen(true);
@@ -152,7 +146,7 @@ export function Dashboard() {
                 </IconButton>
 
                 <DialogTrigger>
-                  <IconButton>
+                  <IconButton className="border-0">
                     <DeleteIcon />
                   </IconButton>
 
@@ -160,11 +154,7 @@ export function Dashboard() {
                     todo={todo}
                     isDeleting={isDeleting}
                     onConfirm={() => {
-                      deleteTodo(todo.id, {
-                        onSuccess: () => {
-                          setDeletingTodo(null);
-                        },
-                      });
+                      deleteTodo(todo.id);
                     }}
                   />
                 </DialogTrigger>

@@ -26,17 +26,17 @@ export function DeleteTodoModal({
             <p className="text-sm text-gray-500">"{todo?.title}"</p>
 
             <div className="flex justify-end gap-3">
-              <Button type="button" onClick={close}>
+              <Button type="button" onClick={close} variant="outline">
                 Cancel
               </Button>
 
               <Button
                 type="button"
-                variant="solid"
+                variant="danger"
                 isDisabled={isDeleting}
                 onClick={() => {
                   onConfirm();
-                  close(); // ✅ closes modal automatically
+                  close();
                 }}
               >
                 {isDeleting ? 'Deleting...' : 'Delete'}
