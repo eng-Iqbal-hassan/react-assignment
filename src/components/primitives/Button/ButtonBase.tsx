@@ -14,7 +14,7 @@ export const ButtonBaseStyles = tv({
       ],
 
       solid: [
-        'bg-(--solid) text-white border-(--solid)',
+        'bg-(--solid) text-white border-(--solid) shadow-solid-button',
         'data-hovered:bg-(--solid-hover) data-hovered:border-(--solid-hover)',
         'data-focused:bg-(--solid-hover) data-focused:border-(--solid-hover)',
         'data-pressed:bg-(--solid-active)',

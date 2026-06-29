@@ -83,6 +83,7 @@ export function SignUp() {
           <Input
             type="text"
             placeholder="Username"
+            aria-invalid={!!errors.userName}
             {...register('userName', {
               required: 'Username is required.',
               minLength: {
@@ -108,6 +109,7 @@ export function SignUp() {
           <Input
             type="email"
             placeholder="Email"
+            aria-invalid={!!errors.email}
             {...register('email', {
               required: 'Email is required.',
               pattern: {
@@ -127,6 +129,7 @@ export function SignUp() {
           <Input
             type="password"
             placeholder="Password"
+            aria-invalid={!!errors.password}
             {...register('password', {
               required: 'Password is required.',
               minLength: {
@@ -148,6 +151,7 @@ export function SignUp() {
           <Input
             type="password"
             placeholder="Confirm Password"
+            aria-invalid={!!errors.confirmPassword}
             {...register('confirmPassword', {
               required: 'Please confirm your password.',
               validate: (value) =>

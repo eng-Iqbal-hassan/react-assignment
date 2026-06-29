@@ -94,6 +94,7 @@ export function LogIn() {
           <Input
             type="email"
             placeholder="Email"
+            aria-invalid={!!errors.email}
             {...register('email', {
               required: 'Email is required.',
               pattern: {
@@ -115,6 +116,7 @@ export function LogIn() {
           <Input
             type="password"
             placeholder="Password"
+            aria-invalid={!!errors.password}
             {...register('password', {
               required: 'Password is required.',
               minLength: {

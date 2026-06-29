@@ -161,6 +161,7 @@ export function TodoModal({
                 <RACInput
                   type="text"
                   value={field.value}
+                  aria-invalid={!!errors.title}
                   onChange={field.onChange}
                 />
               )}
