@@ -65,8 +65,7 @@ export function LogIn() {
       if (data.session) {
         navigate('/dashboard');
       }
-    } catch (error) {
-      console.error(error);
+    } catch {
       setAuthError('Something went wrong. Please try again.');
     } finally {
       setLoading(false);

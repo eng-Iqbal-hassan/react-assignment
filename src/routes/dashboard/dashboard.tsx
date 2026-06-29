@@ -26,7 +26,6 @@ export function Dashboard() {
       const { data, error } = await supabase.auth.getUser();
 
       if (error) {
-        console.error(error);
         setLoadingUser(false);
         return;
       }
