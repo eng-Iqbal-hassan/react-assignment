@@ -94,7 +94,13 @@ export function LogIn() {
           />
         </TextField>
 
-        <Button type="submit" variant="solid" size="large" isDisabled={loading}>
+        <Button
+          type="submit"
+          variant="solid"
+          size="large"
+          isDisabled={loading}
+          className="mt-2"
+        >
           {loading ? 'SIGNING IN...' : 'SIGN IN'}
         </Button>
       </Form>
@@ -105,7 +111,8 @@ export function LogIn() {
         <Button
           type="button"
           onClick={() => navigate('/')}
-          className="text-green-800 bg-transparent p-0 border-0 hover:underline font-medium"
+          variant="plain"
+          className="font-sm text-green-800 p-0 border-0 focus:underline focus-visible:underline hover:underline font-medium"
         >
           Sign Up
         </Button>

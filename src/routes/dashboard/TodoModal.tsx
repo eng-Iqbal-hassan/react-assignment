@@ -1,4 +1,12 @@
-import { Modal, Dialog } from 'react-aria-components';
+import {
+  TextField,
+  Modal,
+  Dialog,
+  Label,
+  Input as RACInput,
+  RadioGroup,
+  Radio,
+} from 'react-aria-components';
 
 import { CrossIcon } from '../../assets/svg';
 import { Button, IconButton } from '../../components/primitives/Button';
@@ -8,6 +16,7 @@ import { useCreateTodo } from '../../hooks/useCreateTodo';
 import { useUpdateTodo } from '../../hooks/useUpdateTodo';
 
 import type { Todo } from '../../types/todos';
+import { CustomCheckbox } from '../../components/primitives/Checkbox';
 
 type Priority = 'High' | 'Medium' | 'Low';
 
@@ -114,80 +123,72 @@ export function TodoModal({
         <div className="flex flex-col gap-8">
           {/* TITLE */}
           <div className="flex flex-col gap-2">
-            <label className="text-sm font-medium text-green-800">
-              Task title
-            </label>
-
-            <input
+            <Label>Task title</Label>
+            <RACInput
               type="text"
-              className="border p-2 rounded-md"
               value={title}
               onChange={(e) => setTitle(e.target.value)}
             />
           </div>
 
-          {/* PRIORITY */}
-          <div className="flex flex-col gap-2">
-            <label className="text-sm font-medium text-green-800">
+          <RadioGroup
+            value={priority}
+            // onChange={(e) => setPriority(e.target.value as Priority)}
+            onChange={(value) => setPriority(value as Priority)}
+          >
+            <Label className="block text-base font-bold text-green-800 mb-3">
               Priority
-            </label>
+            </Label>
 
-            <select
-              className="border p-2 rounded-md"
-              value={priority}
-              onChange={(e) => setPriority(e.target.value as Priority)}
-            >
-              <option value="Low">Low</option>
-              <option value="Medium">Medium</option>
-              <option value="High">High</option>
-            </select>
-          </div>
+            <Radio value="High">High</Radio>
+            <Radio value="Medium">Medium</Radio>
+            <Radio value="Low">Low</Radio>
+          </RadioGroup>
 
           {/* LABELS */}
           <div className="flex flex-col gap-3">
-            <label className="text-sm font-medium text-green-800">Labels</label>
+            <TextField className="flex flex-col gap-3">
+              <Label>Labels</Label>
+              <div className="flex gap-4">
+                <RACInput
+                  value={labelsValue}
+                  onChange={(e) => setLabelsValue(e.target.value)}
+                  placeholder="Add label"
+                />
 
-            <div className="flex gap-2">
-              <input
-                className="border p-2 rounded-md w-full"
-                value={labelsValue}
-                onChange={(e) => setLabelsValue(e.target.value)}
-                placeholder="Add label"
-              />
-
-              <button
-                type="button"
-                onClick={addLabel}
-                className="px-3 bg-green-600 text-white rounded-md"
-              >
-                Add
-              </button>
-            </div>
-
-            <div className="flex flex-wrap gap-2">
-              {labels.map((label) => (
-                <div
-                  key={label}
-                  className="flex items-center gap-1 bg-gray-600 text-white px-2 py-1 rounded-full text-xs"
-                >
-                  <span>{label}</span>
-                  <button type="button" onClick={() => removeLabel(label)}>
-                    ×
-                  </button>
-                </div>
-              ))}
-            </div>
+                <Button type="button" onClick={addLabel} size="small">
+                  Add
+                </Button>
+              </div>
+            </TextField>
+            {labels.length > 0 && (
+              <div className="flex flex-wrap gap-2">
+                {labels.map((label) => (
+                  <div
+                    key={label}
+                    className="flex items-start-start gap-1 bg-gray-450 text-white px-2 py-0.5 rounded-sm text-xs leading-3.5"
+                  >
+                    <span>{label}</span>
+                    <button
+                      className="leading-2 h-fit"
+                      type="button"
+                      onClick={() => removeLabel(label)}
+                    >
+                      ×
+                    </button>
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
 
-          {/* COMPLETED */}
-          <label className="flex items-center gap-2 text-sm">
-            <input
-              type="checkbox"
-              checked={isCompleted}
-              onChange={(e) => setIsCompleted(e.target.checked)}
-            />
+          <CustomCheckbox
+            isSelected={isCompleted}
+            onChange={setIsCompleted}
+            className="text-base leading-5 font-normal text-gray-700"
+          >
             Mark as completed
-          </label>
+          </CustomCheckbox>
 
           {/* SUBMIT */}
           <Button

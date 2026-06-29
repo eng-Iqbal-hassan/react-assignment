@@ -129,6 +129,7 @@ export function SignUp() {
           size="large"
           onClick={signUp}
           isDisabled={loading}
+          className="mt-2"
         >
           {loading ? 'SIGNING UP...' : 'SIGN UP'}
         </Button>
@@ -139,6 +140,7 @@ export function SignUp() {
 
         <Button
           type="button"
+          variant="plain"
           onClick={() => navigate('/login')}
           className="text-green-800 bg-transparent p-0 border-0 hover:underline font-medium"
         >

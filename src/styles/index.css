@@ -18,6 +18,8 @@
 
     --color-white: hsla(0, 0%, 100%, 1);
 
+    --text-32: 32px;
+
     --font-fira: "Fira Sans", sans-serif;
     --font-montserrat: "Montserrat", sans-serif;
 
@@ -36,7 +38,7 @@
 }
 
 html, body, #root {
-    height: 100%;
+    @apply font-fira h-full bg-gray-50;
 }
 
 .custom-clip {

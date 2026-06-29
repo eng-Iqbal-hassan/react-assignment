@@ -10,11 +10,7 @@ export const ButtonBaseStyles = tv({
     variant: {
       plain: [
         'bg-transparent text-white border-transparent',
-        'data-hovered:text-(--color-gray-300)',
-        'data-focused:text-(--color-gray-400)',
         'disabled:text-(--color-gray-500)',
-        '[--ring:var(--color-white)]',
-        'text-xl font-bold font-montserrat',
       ],
 
       solid: [
@@ -23,6 +19,26 @@ export const ButtonBaseStyles = tv({
         'data-focused:bg-(--solid-hover) data-focused:border-(--solid-hover)',
         'data-pressed:bg-(--solid-active)',
         'disabled:bg-gray-200 disabled:border-gray-200 disabled:text-gray-400',
+        '[--ring:var(--color-green-800)]',
+        'text-sm leading-3.5 font-bold font-fira',
+      ],
+
+      danger: [
+        'bg-red-600 text-white border-red-600',
+        'data-hovered:bg-red-700 data-hovered:border-red-700',
+        'data-focused:bg-red-700 data-focused:border-red-700',
+        'data-pressed:bg-red-800',
+        'disabled:bg-red-200 disabled:border-red-200 disabled:text-red-400',
+        '[--ring:var(--color-red-700)]',
+        'text-sm leading-3.5 font-bold font-fira',
+      ],
+
+      outline: [
+        'bg-transparent text-(--solid) border-(--solid)',
+        'data-hovered:bg-green-50 data-hovered:border-(--solid-hover) data-hovered:text-(--solid-hover)',
+        'data-focused:bg-green-50 data-focused:border-(--solid-hover) data-focused:text-(--solid-hover)',
+        'data-pressed:bg-green-100',
+        'disabled:bg-transparent disabled:border-gray-300 disabled:text-gray-400',
         '[--ring:var(--color-green-800)]',
         'text-sm leading-3.5 font-bold font-fira',
       ],
