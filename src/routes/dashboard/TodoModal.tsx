@@ -10,7 +10,6 @@ import {
 
 import { CrossIcon } from '../../assets/svg';
 import { Button, IconButton } from '../../components/primitives/Button';
-import { useEffect } from 'react';
 import { useForm, Controller, useWatch } from 'react-hook-form';
 
 import { useCreateTodo } from '../../hooks/useCreateTodo';
@@ -50,43 +49,18 @@ export function TodoModal({
   const {
     control,
     handleSubmit,
-    reset,
     setValue,
     getValues,
     formState: { errors },
   } = useForm<FormValues>({
+    values: (editingTodo ?? undefined) as any,
     defaultValues: {
-      title: '',
       priority: 'High',
-      labelsValue: '',
-      labels: [],
-      isCompleted: false,
     },
   });
 
   // Keep labels accessible for rendering
-  const labels = useWatch({ control, name: 'labels' });
-
-  /* hydrate form */
-  useEffect(() => {
-    if (editingTodo) {
-      reset({
-        title: editingTodo.title ?? '',
-        priority: (editingTodo.priority as Priority) ?? 'High',
-        labels: editingTodo.labels ?? [],
-        labelsValue: '',
-        isCompleted: editingTodo.is_completed ?? false,
-      });
-    } else {
-      reset({
-        title: '',
-        priority: 'High',
-        labels: [],
-        labelsValue: '',
-        isCompleted: false,
-      });
-    }
-  }, [editingTodo, reset]);
+  const labels = useWatch({ control, name: 'labels' }) ?? [];
 
   const addLabel = () => {
     const trimmed = getValues('labelsValue').trim();
@@ -132,7 +106,6 @@ export function TodoModal({
   const loading = isPending || isUpdating;
 
   const handleClose = () => {
-    reset();
     onClose();
   };
 
@@ -145,7 +118,7 @@ export function TodoModal({
       className="fixed inset-0 flex items-center justify-center bg-black/50"
     >
       <Dialog className="w-full max-w-md rounded-lg bg-white p-12 shadow-lg relative outline-none">
-        <div className="flex flex-col gap-8">
+        <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-8">
           {/* TITLE */}
           <TextField className="flex flex-col gap-2">
             <Label>Task title</Label>
@@ -251,11 +224,11 @@ export function TodoModal({
 
           {/* SUBMIT */}
           <Button
-            type="button"
+            type="submit"
             variant="solid"
             size="large"
-            onClick={handleSubmit(onSubmit)}
             isDisabled={loading}
+            isPending={loading}
           >
             {isEditMode
               ? loading
@@ -265,7 +238,7 @@ export function TodoModal({
                 ? 'CREATING...'
                 : 'CREATE TASK'}
           </Button>
-        </div>
+        </form>
 
         {/* CLOSE BUTTON */}
         <IconButton className="absolute top-2 right-2" onClick={handleClose}>

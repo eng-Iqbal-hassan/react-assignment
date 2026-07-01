@@ -1,0 +1,79 @@
+services:
+  db:
+    container_name: supabase-db
+    image: supabase/postgres:15.6.1.138
+    restart: unless-stopped
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    volumes:
+      - supabase_db_data:/var/lib/postgresql/data
+
+  meta:
+    container_name: supabase-meta
+    image: supabase/postgres-meta:v0.84.2
+    restart: unless-stopped
+    environment:
+      PG_META_DB_URL: postgres://postgres:${POSTGRES_PASSWORD}@db:5432/postgres
+    depends_on:
+      - db
+
+  studio:
+    container_name: supabase-studio
+    image: supabase/studio:latest
+    restart: unless-stopped
+    ports:
+      - "8000:3000"
+    environment:
+      STUDIO_PG_META_URL: http://meta:8080/
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      DEFAULT_ORGANIZATION_NAME: "Local Project"
+      DEFAULT_PROJECT_NAME: "My Project"
+    depends_on:
+      - meta
+
+  auth:
+    container_name: supabase-auth
+    image: supabase/gotrue:v2.152.0
+    restart: unless-stopped
+    environment:
+      GOTRUE_DB_DRIVER: postgres
+      GOTRUE_JWT_SECRET: ${JWT_SECRET}
+      GOTRUE_JWT_EXP: "3600"
+      GOTRUE_DB_DATABASE_URL: postgres://postgres:${POSTGRES_PASSWORD}@db:5432/postgres
+      GOTRUE_API_HOST: "0.0.0.0"
+      GOTRUE_API_PORT: "9999"
+      GOTRUE_SITE_URL: "http://localhost:3000"
+      API_EXTERNAL_URL: "http://localhost:54321"
+      GOTRUE_EXTERNAL_EMAIL_ENABLED: "true"
+      GOTRUE_MAILER_AUTOCONFIRM: "true"
+    depends_on:
+      - db
+
+  rest:
+    container_name: supabase-rest
+    image: postgrest/postgrest:v12.2.0
+    restart: unless-stopped
+    environment:
+      PGRST_DB_URI: postgres://postgres:${POSTGRES_PASSWORD}@db:5432/postgres
+      PGRST_DB_SCHEMA: "public"
+      PGRST_DB_ANON_ROLE: "anon"
+      PGRST_JWT_SECRET: ${JWT_SECRET}
+    depends_on:
+      - db
+
+  proxy:
+    container_name: supabase-proxy
+    image: nginx:alpine
+    restart: unless-stopped
+    ports:
+      - "54321:80"
+    volumes:
+      - ./volumes/api/nginx.conf:/etc/nginx/nginx.conf:ro
+    depends_on:
+      - auth
+      - rest
+
+volumes:
+  supabase_db_data:

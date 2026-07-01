@@ -82,6 +82,7 @@ export function Dashboard() {
               userId={userId}
               editingTodo={editingTodo}
               isOpen={isOpen}
+              key={editingTodo?.id ?? 'new'}
               onClose={() => {
                 setIsOpen(false);
                 setEditingTodo(null);
