@@ -1,4 +1,5 @@
-@import "./input.css";
+@import "form.css";
+@import "modal.css";
 @import "tailwindcss";
 
 @theme {

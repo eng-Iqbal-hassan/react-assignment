@@ -35,9 +35,6 @@ export function Button({
   className,
   ...props
 }: ButtonProps) {
-  if (['submit', 'reset'].includes(props.type!) && !props.slot)
-    props.slot = props.type;
-
   return (
     <RACButton
       isPending={isPending}

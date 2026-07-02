@@ -25,9 +25,6 @@ export function IconButton({
   className,
   ...props
 }: IconButtonProps) {
-  if (['submit', 'reset'].includes(props.type!) && !props.slot)
-    props.slot = props.type;
-
   return (
     <RACButton
       {...props}

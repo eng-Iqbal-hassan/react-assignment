@@ -42,7 +42,10 @@ export function ProfileDropdown({ user }: Props) {
         👤
       </Button>
 
-      <Popover className="min-w-64 bg-white border shadow-lg rounded-xl p-2">
+      <Popover
+        className="min-w-64 bg-white border shadow-lg rounded-xl p-2"
+        placement="bottom right"
+      >
         <div className="px-3 py-3 border-b mb-2">
           <p className="text-sm font-semibold">{formattedUser.name}</p>
           <p className="text-xs text-gray-500">{formattedUser.email}</p>

@@ -1,0 +1,32 @@
+.react-aria-TextField {
+    @apply flex flex-col gap-3;
+}
+
+.react-aria-Label {
+    @apply text-base font-bold font-montserrat leading-3.5 -space-x-0.5 text-green-800;
+}
+
+.react-aria-Input {
+    @apply w-full h-10 px-4 py-2.5 border border-gray-400 rounded-sm text-base leading-5 focus:outline-none focus:ring-2 focus:ring-green-800 focus:ring-offset-1;
+}
+
+.react-aria-Input[aria-invalid="true"] {
+    @apply border-red-500;
+}
+
+.react-aria-Radio, .react-aria-RadioField {
+    @apply text-xs font-bold leading-3.5 font-fira px-2 py-1.5 rounded-sm text-green-800 transition-colors data-selected:text-white relative;
+
+    .react-aria-RadioButton span {
+        @apply relative z-1;
+    }
+
+    .react-aria-SelectionIndicator {
+        @apply absolute inset-0 rounded transition-transform;
+    }
+
+    [data-selected] .react-aria-SelectionIndicator {
+        @apply bg-green-800;
+    }
+}
+

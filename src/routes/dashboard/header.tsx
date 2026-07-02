@@ -1,6 +1,5 @@
 import { useEffect, useState } from 'react';
 import { supabase } from '../../lib/supabase';
-import { TodoIcon } from '../../assets/svg';
 import { ProfileDropdown } from './profileDropdown.tsx';
 
 export function Header() {
@@ -16,8 +15,8 @@ export function Header() {
   }, []);
   return (
     <header className="sticky top-0 w-full h-25 bg-green-800 py-6 px-37.5 flex items-center justify-between">
-      <div className="bg-white text-green-800 h-full px-3 pb-5 pt-1.5 w-min custom-header-clip">
-        <TodoIcon />
+      <div className="bg-white text-green-800 h-full px-3 pt-1.5 w-min custom-header-clip text-base leading-4 text-center">
+        TO DO
       </div>
       <ProfileDropdown user={user} />
     </header>

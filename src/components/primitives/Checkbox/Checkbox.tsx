@@ -24,7 +24,7 @@ const boxStyles = tv({
   variants: {
     isSelected: {
       false: 'bg-white border-gray-400',
-      true: 'bg-green-700 border-green-700',
+      true: 'bg-green-800 border-green-800',
     },
   },
 });

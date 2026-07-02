@@ -1,6 +1,5 @@
 import { Header } from './header.tsx';
 import { Button, IconButton } from '../../components/primitives/Button';
-import { DeleteIcon, EditIcon } from '../../assets/svg';
 import { DialogTrigger } from 'react-aria-components';
 
 import { TodoModal } from './TodoModal.tsx';
@@ -9,6 +8,7 @@ import { useDeleteTodo } from '../../hooks/useDeleteTodo';
 import { supabase } from '../../lib/supabase';
 import { useEffect, useState } from 'react';
 import { DeleteTodoModal } from './DeleteTodoModal.tsx';
+import { Trash, SquarePen } from 'lucide-react';
 
 import type { Todo } from '../../types/todos.ts';
 
@@ -81,7 +81,6 @@ export function Dashboard() {
             <TodoModal
               userId={userId}
               editingTodo={editingTodo}
-              isOpen={isOpen}
               key={editingTodo?.id ?? 'new'}
               onClose={() => {
                 setIsOpen(false);
@@ -143,12 +142,12 @@ export function Dashboard() {
                     setIsOpen(true);
                   }}
                 >
-                  <EditIcon />
+                  <SquarePen color="#0B4B36" width="20" height="20" />
                 </IconButton>
 
-                <DialogTrigger>
+                <DialogTrigger defaultOpen={isOpen}>
                   <IconButton className="border-0">
-                    <DeleteIcon />
+                    <Trash color="#0B4B36" width="20" height="20" />
                   </IconButton>
 
                   <DeleteTodoModal
